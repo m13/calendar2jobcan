@@ -4,12 +4,15 @@
   "description": "Sync Jobcan with Google Calendar",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 0"
   },
   "repository": {
     "type": "git",
     "url": "git@github.com:m13/calendar2jobcan.git"
   },
   "author": "m13",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "googleapis": "39.2.0"
+  }
 }
