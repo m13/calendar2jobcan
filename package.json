@@ -1,0 +1,15 @@
+{
+  "name": "calendar2jobcan",
+  "version": "1.0.0",
+  "description": "Sync Jobcan with Google Calendar",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:m13/calendar2jobcan.git"
+  },
+  "author": "m13",
+  "license": "MIT"
+}
