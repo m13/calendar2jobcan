@@ -1,24 +1,9 @@
 require('dotenv').config();
 
 const moment = require('moment-timezone');
-const readline = require('readline');
-const {authenticate} = require('./lib/google-oauth2.js');
-const {getEventList} = require('./lib/google-calendar.js');
-const {display, persist} = require('./lib/jobcan.js');
-
-
-async function askIfContinue(question, accepted) {
-  return new Promise((resolve) => {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout
-    });
-    rl.question(question, (answer) => {
-      rl.close();
-      resolve(accepted.find(e => e === answer));
-    });
-  });
-}
+const {askIfContinue} = require('./lib/ask.js');
+const calendar = new (require('./model/calendar.js'))();
+const jobcan = new (require('./model/jobcan.js'))();
 
 
 function input() {
@@ -40,10 +25,9 @@ async function main() {
   console.log(`With locale ${moment.locale()}, timezone ${moment().format('Z')}`);
   console.log(`Search between ${timeMin} and ${timeMax}`);
 
-  const auth = await authenticate();
-  const events = await getEventList(auth, timeMin, timeMax);
+  const events = await calendar.getEventList(timeMin, timeMax);
 
-  display(events);
+  jobcan.display(events);
 
   const question = 'Do you want to persist the information into JobCan? (y/N) ';
   const accepted = ['y', 'Y', 'yes'];
@@ -51,7 +35,7 @@ async function main() {
 
   if (!shouldPersist) return;
 
-  await persist(events);
+  await jobcan.persist(events);
 }
 
 
