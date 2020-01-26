@@ -1,30 +1,12 @@
 require('dotenv').config();
 
 const moment = require('moment-timezone');
-const readline = require('readline');
-const {getAuth} = require('./lib/google-oauth2.js');
-const {listEvents} = require('./lib/google-calendar.js');
-const {show, persist} = require('./lib/jobcan.js');
+const {askIfContinue} = require('./lib/ask.js');
+const calendar = new (require('./model/calendar.js'))();
+const jobcan = new (require('./model/jobcan.js'))();
 
 
-function shouldPersist(data) {
-  show(data);
-
-  return new Promise((resolve, reject) => {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout
-    });
-    rl.question('Do you want to persist the information into JobCan? (y/N) ', (answer) => {
-      rl.close();
-      if (answer === 'y' || answer === 'Y') return resolve(data);
-      reject('Done!');
-    });
-  });
-}
-
-
-async function main() {
+function input() {
   let unit = 'week';
   let timeMin = moment().subtract(1, unit).startOf(unit).toISOString();
   let timeMax = moment().subtract(1, unit).endOf(unit).toISOString();
@@ -33,13 +15,28 @@ async function main() {
   if (myArgs[0]) timeMin = moment(myArgs[0]).toISOString();
   if (myArgs[1]) timeMax = moment(myArgs[1]).toISOString();
 
+  return { timeMin, timeMax };
+}
+
+
+async function main() {
+  const { timeMin, timeMax } = input();
+
   console.log(`With locale ${moment.locale()}, timezone ${moment().format('Z')}`);
   console.log(`Search between ${timeMin} and ${timeMax}`);
 
-  await getAuth()
-    .then(auth => listEvents(auth, timeMin, timeMax))
-    .then(data => shouldPersist(data))
-    .then(data => persist(data));
+  const events = await calendar.getEventList(timeMin, timeMax);
+
+  jobcan.display(events);
+
+  const question = 'Do you want to persist the information into JobCan? (y/N) ';
+  const accepted = ['y', 'Y', 'yes'];
+  const shouldPersist = await askIfContinue(question, accepted);
+
+  if (!shouldPersist) return;
+
+  await jobcan.persist(events);
 }
+
 
 main().catch(console.error);
