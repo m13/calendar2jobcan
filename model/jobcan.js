@@ -95,7 +95,7 @@ class Jobcan {
           console.log(` & requested!`);
         } catch (error) {
           console.error(` is already submitted!`);
-          console.error(error);
+          // console.error(error);
         }
       }
 
