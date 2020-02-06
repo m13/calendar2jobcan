@@ -26,6 +26,7 @@ async function main() {
   console.log(`Search between ${timeMin} and ${timeMax}`);
 
   const events = await calendar.getEventList(timeMin, timeMax);
+  // console.log(events);
 
   jobcan.display(events);
 

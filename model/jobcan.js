@@ -2,7 +2,11 @@ const colors = require('colors/safe');
 const pad = require('pad-left');
 const moment = require('moment-timezone');
 const {openBrowser, goto, write, click, button, closeBrowser,
-  $, evaluate, near, textBox, dropDown, text, clear} = require('taiko');
+  $, evaluate, near, textBox, dropDown, text, clear, alert, accept} = require('taiko');
+const TAIKO_WRITE_OPTIONS = {
+  delay: 1,
+  waitForStart: 0
+};
 
 
 class Jobcan {
@@ -44,6 +48,8 @@ class Jobcan {
   async persist(events) {
     try {
       await openBrowser({headless: false});
+      // this doesn't work - dunno why :(
+      alert('Are you sure', async () => await accept());
 
       // login
       await goto('https://id.jobcan.jp/users/sign_in?app_key=atd');
@@ -51,6 +57,8 @@ class Jobcan {
       await write(process.env.JOBCAN_PASSWORD, $('#user_password'));
       await click(button('ログイン'));
       await goto('https://ssl.jobcan.jp/employee/attendance/edit');
+
+      const requestAgain = `//div[text()='Request again']`;
 
       // select right month
       for (const [key, value] of Object.entries(events)) {
@@ -67,25 +75,32 @@ class Jobcan {
             await dropDown({name: 'month'}).select(value.month);
           }
 
+          if (await $(requestAgain).exists()) {
+            // clicking this displays an alert.
+            // because handling alerts does not work, you need to click manually.
+            await click($(requestAgain));
+          }
+
           // select row
-          const id = await evaluate($(`tr`, near(text(`${value.month}/${value.day}`))), (e) => e.id.match(/\d+/));
+          const id = await evaluate($(`//tr[td[contains(text(),'${value.month}/${value.day}')]]`), (e) => e.id.match(/\d+/));
           process.stdout.write(` & id=${id}`);
 
-          await clear(textBox({id: `start_${id}`}));
-          await write(value.clockin, textBox({id: `start_${id}`}));
-          await clear(textBox({id: `end_${id}`}));
-          await write(value.clockout, textBox({id: `end_${id}`}));
-          await clear(textBox({id: `rest_${id}`}));
-          await write(value.breaktime, textBox({id: `rest_${id}`}));
+          await clear(textBox({id: `start_${id}`}), TAIKO_WRITE_OPTIONS);
+          await write(value.clockin, textBox({id: `start_${id}`}), TAIKO_WRITE_OPTIONS);
+          await clear(textBox({id: `end_${id}`}), TAIKO_WRITE_OPTIONS);
+          await write(value.clockout, textBox({id: `end_${id}`}), TAIKO_WRITE_OPTIONS);
+          await clear(textBox({id: `rest_${id}`}), TAIKO_WRITE_OPTIONS);
+          await write(value.breaktime, textBox({id: `rest_${id}`}), TAIKO_WRITE_OPTIONS);
 
-          // execute
-          await click($(`#apply_button_${id}`));
           console.log(` & requested!`);
         } catch (error) {
           console.error(` is already submitted!`);
-          // console.error(error);
+          console.error(error);
         }
       }
+
+      // execute
+      await click($(`//div[text()='Send Request']`));
     } catch (error) {
       console.error(error);
     } finally {
