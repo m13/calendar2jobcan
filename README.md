@@ -31,10 +31,18 @@ Example:
 #### Jobcan
 
 Create a file named `.env` and add your credentials:
-```
+```yaml
 JOBCAN_USERNAME=whatever@moneytree.jp
 JOBCAN_PASSWORD=BliBliBli
+JOBCAN_STRATEGY=sum
+CALENDAR_TIMEZONE=Asia/Tokyo # leave empty to default "Asia/Tokyo"
 ```
+
+
+## Calendar strategies
+
+- `sum`: Time is the sum of all events individually (by @m13)
+- `min-max`: Time is calculated from earliest event to latest one (by @vadimburlakin)
 
 
 # USAGE
@@ -69,5 +77,7 @@ Started with 2020-01-03 & id=1577977200^C
 
 # PENDING
 
+- [x] JobCan strategies
+- [x] TimeZone
 - [ ] Tests
 - [ ] Manage Holidays (events are currently discarded)
