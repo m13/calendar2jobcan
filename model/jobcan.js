@@ -4,7 +4,17 @@ const moment = require('moment-timezone');
 const {openBrowser, goto, write, click, button, closeBrowser,
   $, evaluate, near, textBox, dropDown, text, clear} = require('taiko');
 
-
+/*
+ events = {
+  duration: 8*60
+  clockin: '10:00'
+  clockout: '19:00'
+  breaktime: '1:00'
+  year: 2020
+  month: 01
+  day: 01
+ }
+ */
 class Jobcan {
   display(events) {
     let dduration = 0;
