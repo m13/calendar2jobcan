@@ -1,7 +1,7 @@
 const colors = require('colors/safe');
 const pad = require('pad-left');
 const moment = require('moment-timezone');
-const JapaneseHolidays = require('japanese-holidays');
+const holidays = new (require('date-holidays'))();
 const {openBrowser, goto, write, click, button, closeBrowser,
   $, evaluate, near, textBox, dropDown, text, clear} = require('taiko');
 
@@ -17,10 +17,14 @@ const {openBrowser, goto, write, click, button, closeBrowser,
  }
  */
 class Jobcan {
+  constructor() {
+    holidays.init(process.env.HOLIDAY_ZONE || 'JP')
+  }
+
   // best effort!
   isHoliday(date) {
     return (['Sat', 'Sun'].indexOf(date.format('ddd')) !== -1)
-      || JapaneseHolidays.isHoliday(date.toDate());
+      || holidays.isHoliday(date.toDate());
   }
 
   display(events) {

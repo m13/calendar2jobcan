@@ -54,6 +54,7 @@ Example:
 Create a file named `.env` and add your credentials:
 ```yaml
 INPUT=calendar # or "csv"
+HOLIDAY_ZONE=JP # https://github.com/commenthol/date-holidays/#supported-countries-states-regions
 JOBCAN_USERNAME=whatever@moneytree.jp
 JOBCAN_PASSWORD=BliBliBli
 JOBCAN_STRATEGY=sum
@@ -102,5 +103,5 @@ Started with 2020-01-03 & id=1577977200^C
 - [x] JobCan strategies
 - [x] TimeZone
 - [x] Add multiple inputs (Google Calendar, CSV, ..)
-- [x] Manage Holidays (best-effort)
+- [x] Manage Holidays (JP/AU/wherever)
 - [ ] Tests

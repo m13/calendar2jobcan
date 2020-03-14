@@ -15,11 +15,10 @@
   "dependencies": {
     "colors": "1.4.0",
     "csv-parse": "4.8.8",
+    "date-holidays": "1.4.14",
     "dotenv": "8.2.0",
     "googleapis": "46.0.0",
-    "japanese-holidays": "1.0.9",
     "moment": "2.24.0",
-    "moment-holiday": "1.5.1",
     "moment-timezone": "0.5.27",
     "pad-left": "2.1.0",
     "request": "2.88.0",
