@@ -1,11 +1,32 @@
 const colors = require('colors/safe');
 const pad = require('pad-left');
 const moment = require('moment-timezone');
+const holidays = new (require('date-holidays'))();
 const {openBrowser, goto, write, click, button, closeBrowser,
   $, evaluate, near, textBox, dropDown, text, clear} = require('taiko');
 
-
+/*
+ events = {
+  duration: 8*60
+  clockin: '10:00'
+  clockout: '19:00'
+  breaktime: '1:00'
+  year: '2020'
+  month: '01'
+  day: '01'
+ }
+ */
 class Jobcan {
+  constructor() {
+    holidays.init(process.env.HOLIDAY_ZONE || 'JP')
+  }
+
+  // best effort!
+  isHoliday(date) {
+    return (['Sat', 'Sun'].indexOf(date.format('ddd')) !== -1)
+      || holidays.isHoliday(date.toDate());
+  }
+
   display(events) {
     let dduration = 0;
     let weekday = 0;
@@ -27,8 +48,7 @@ class Jobcan {
       ]
         .join("\t");
 
-      // TODO moment-holiday ??
-      if (['Sat', 'Sun'].indexOf(moment(key).format('ddd')) !== -1) {
+      if (this.isHoliday(moment(key))) {
         console.log(colors.grey(line));
       } else {
         console.log(line);

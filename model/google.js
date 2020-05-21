@@ -7,8 +7,8 @@ const {google} = require('googleapis');
 
 class Google {
   constructor() {
-    this.CREDENTIALS_PATH = 'credentials.json';
     this.TOKEN_PATH = 'token.json';
+    this.CREDENTIALS_PATH = 'credentials.json';
     this.SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];
     this.OFFLINE = 'offline';
   }

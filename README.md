@@ -2,7 +2,28 @@
 
 # SETUP
 
-#### Google Calendar
+#### Input: CSV (NEW!)
+
+If you don't organize yourself using Google Calendar, now there is a new input method.
+
+First, generate a default `monthly.csv` with
+```bash
+$ ./csv-generator.js # it will try to skip all JAPANESE holidays (Sat + Sun too)
+File ./monthly.csv written.
+Review extra working or swapped days !!
+```
+
+Then ensure to modify your `.env` file with
+```yaml
+INPUT=csv
+...
+```
+
+And run it like the usage section. 
+CSV has only 1 argument, which is the filename (just in case you want to organize backups, etc.)
+
+
+#### Input: Google Calendar
 
 First you will need to create your own application (if you belong to my company, I can share my own `client_secret` with you).
 You can do it manually, going to https://console.developers.google.com/apis/dashboard, create a new project, enabling Google Calendar API and creating a set of credentials.
@@ -32,6 +53,8 @@ Example:
 
 Create a file named `.env` and add your credentials:
 ```yaml
+INPUT=calendar # or "csv"
+HOLIDAY_ZONE=JP # https://github.com/commenthol/date-holidays/#supported-countries-states-regions
 JOBCAN_USERNAME=whatever@moneytree.jp
 JOBCAN_PASSWORD=BliBliBli
 JOBCAN_STRATEGY=sum
@@ -79,5 +102,6 @@ Started with 2020-01-03 & id=1577977200^C
 
 - [x] JobCan strategies
 - [x] TimeZone
+- [x] Add multiple inputs (Google Calendar, CSV, ..)
+- [x] Manage Holidays (JP/AU/wherever)
 - [ ] Tests
-- [ ] Manage Holidays (events are currently discarded)
