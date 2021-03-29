@@ -2,7 +2,7 @@
 //
 const moment = require('moment-timezone');
 
-const OUT_OF_OFFICE = 'This is an out-of-office event';
+const OUT_OF_OFFICE = 'outOfOffice';
 const ACCEPTED = 'accepted';
 
 
@@ -14,7 +14,7 @@ function asCompactedEvent(event) {
     date: moment(event.start.dateTime).format('YYYY-MM-DD'),
     duration: (moment(event.end.dateTime) - moment(event.start.dateTime)) / 1000 / 60,
     attended: (event.attendees) ? event.attendees.find(a => a.self).responseStatus === ACCEPTED : true,
-    outofoffice: event.description && event.description.startsWith(OUT_OF_OFFICE)
+    outofoffice: event.eventType === OUT_OF_OFFICE
   };
 }
 

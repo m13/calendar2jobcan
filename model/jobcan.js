@@ -1,9 +1,11 @@
 const colors = require('colors/safe');
-const pad = require('pad-left');
 const moment = require('moment-timezone');
 const holidays = new (require('date-holidays'))();
-const {openBrowser, goto, write, click, button, closeBrowser,
-  $, evaluate, near, textBox, dropDown, text, clear} = require('taiko');
+const {
+  openBrowser, goto, write, click, button, closeBrowser,
+  $, textBox, text, clear,
+  into, setConfig
+} = require('taiko');
 
 /*
  events = {
@@ -70,40 +72,33 @@ class Jobcan {
       await write(process.env.JOBCAN_USERNAME, $('#user_email'));
       await write(process.env.JOBCAN_PASSWORD, $('#user_password'));
       await click(button('ログイン'));
-      await goto('https://ssl.jobcan.jp/employee/attendance/edit');
 
-      // select right month
+      // it doesn't work very well...
+      setConfig({observeTime: 1000, navigationTimeout: 1000});
+
       for (const [key, value] of Object.entries(events)) {
         process.stdout.write(`Started with ${key}`);
 
-        try {
-          // goto right year/month
-          const currentYear = await dropDown({name: 'year'}).value();
-          if (pad(currentYear, 4, '0') !== value.year) {
-            await dropDown({name: 'year'}).select(value.year);
-          }
-          const currentMonth = await dropDown({name: 'month'}).value();
-          if (pad(currentMonth, 2, '0') !== value.month) {
-            await dropDown({name: 'month'}).select(value.month);
-          }
+        await goto(`https://ssl.jobcan.jp/employee/adit/modify?year=${value.year}&month=${value.month}&day=${value.day}`);
 
-          // select row
-          const id = await evaluate($(`tr`, near(text(`${value.month}/${value.day}`))), (e) => e.id.match(/\d+/));
-          process.stdout.write(` & id=${id}`);
-
-          await clear(textBox({id: `start_${id}`}));
-          await write(value.clockin, textBox({id: `start_${id}`}));
-          await clear(textBox({id: `end_${id}`}));
-          await write(value.clockout, textBox({id: `end_${id}`}));
-          await clear(textBox({id: `rest_${id}`}));
-          await write(value.breaktime, textBox({id: `rest_${id}`}));
-
-          // execute
-          await click($(`#apply_button_${id}`));
-          console.log(` & requested!`);
-        } catch (error) {
+        if (await (text('Clock In').exists())) {
           console.error(` is already submitted!`);
-          // console.error(error);
+        } else if (!await (text('No clocking on shift day.').exists())) {
+          console.error(` is holiday!`);
+        } else {
+          // Clock-In
+          let ter_time = textBox({id: 'ter_time'});
+          let insert_button = button({id: 'insert_button'});
+          await clear(ter_time);
+          await write(value.clockin.replace(':', ''), into(ter_time));
+          await click(insert_button);
+          process.stdout.write(` & in`);
+          // Clock-Out
+          await clear(ter_time);
+          await write(value.clockout.replace(':', ''), into(ter_time));
+          await click(insert_button);
+          process.stdout.write(` & out`);
+          console.log(` & requested!`);
         }
       }
     } catch (error) {
