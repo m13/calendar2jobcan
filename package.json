@@ -14,14 +14,13 @@
   "license": "MIT",
   "dependencies": {
     "colors": "1.4.0",
-    "csv-parse": "4.8.8",
-    "date-holidays": "1.4.14",
+    "csv-parse": "4.15.3",
+    "date-holidays": "3.0.1",
     "dotenv": "8.2.0",
-    "googleapis": "46.0.0",
-    "moment": "2.24.0",
-    "moment-timezone": "0.5.27",
-    "pad-left": "2.1.0",
-    "request": "2.88.0",
-    "taiko": "1.0.3"
+    "googleapis": "68.0.0",
+    "japanese-holidays": "1.0.9",
+    "moment": "2.29.1",
+    "moment-timezone": "0.5.33",
+    "taiko": "1.2.3"
   }
 }
