@@ -13,6 +13,7 @@
   "author": "m13",
   "license": "MIT",
   "dependencies": {
+    "@babel/core": "7.13.14",
     "colors": "1.4.0",
     "csv-parse": "4.15.3",
     "date-holidays": "3.0.1",
