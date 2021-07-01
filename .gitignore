@@ -8,4 +8,4 @@ node_modules/
 credentials.json
 token.json
 .env
-monthly.csv
+*monthly.csv

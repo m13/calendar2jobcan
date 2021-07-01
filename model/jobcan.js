@@ -68,7 +68,7 @@ class Jobcan {
       await openBrowser({headless: false});
 
       // login
-      await goto('https://id.jobcan.jp/users/sign_in?app_key=atd');
+      await goto('https://id.jobcan.jp/users/sign_in?app_key=atd&lang=ja');
       await write(process.env.JOBCAN_USERNAME, $('#user_email'));
       await write(process.env.JOBCAN_PASSWORD, $('#user_password'));
       await click(button('ログイン'));
