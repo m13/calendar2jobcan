@@ -20,7 +20,7 @@
     "dotenv": "8.2.0",
     "googleapis": "68.0.0",
     "japanese-holidays": "1.0.9",
-    "moment": "2.29.1",
+    "moment": "2.29.4",
     "moment-timezone": "0.5.33",
     "taiko": "1.2.3"
   }
