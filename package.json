@@ -21,7 +21,7 @@
     "googleapis": "68.0.0",
     "japanese-holidays": "1.0.9",
     "moment": "2.29.1",
-    "moment-timezone": "0.5.33",
+    "moment-timezone": "0.5.35",
     "taiko": "1.2.3"
   }
 }
