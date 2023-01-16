@@ -74,8 +74,6 @@ class Jira {
         ]
       }
     }`;
-
-    console.log(bodyString);
     return bodyString;
   }
 
@@ -103,9 +101,9 @@ class Jira {
     };
 
     const response = await fetch(jiraRequestUrl, jiraRequestPayload);
-    const responseJson = await response.json();
+    console.log(JSON.stringify(response));
 
-    jiraEvent.jiraWorklogId = responseJson.id;
+    jiraEvent.jiraWorklogId = jiraWorklogId;
     return jiraEvent;
   }
 
@@ -148,8 +146,6 @@ class Jira {
         startAt: moment.utc(event.start).toISOString().replace('Z', '+0000'),
         timeSpentSeconds: event.duration * 60,
       }
-      console.log('event.start', event.start);
-      console.log('formattedEvent.startAt', formattedEvent.startAt);
       return formattedEvent;
     });
 
@@ -159,7 +155,7 @@ class Jira {
       let savedEvent = savedEvents[calendarId];
 
       if (savedEvent) {
-        console.log(colors.green(`updateWorklog ${jiraEvent.description}`));
+        console.log(colors.green(`updateWorklog: ${jiraEvent.description}`));
         jiraEvent = await this.updateWorklog(savedEvent.jiraWorklogId, jiraEvent); // returns jiraEvent with the new worklog ID
       } else {
         console.log(colors.blue(`addWorklog: ${jiraEvent.description}`));
