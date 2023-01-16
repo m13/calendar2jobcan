@@ -14,11 +14,14 @@ function input() {
   return { timeMin, timeMax };
 }
 
-
-module.exports = async function() {
+module.exports = async function () {
   const { timeMin, timeMax } = input();
 
-  console.log(colors.bold(`With locale ${moment.locale()}, timezone ${moment().format('Z')}`));
+  console.log(
+    colors.bold(
+      `With locale ${moment.locale()}, timezone ${moment().format('Z')}`
+    )
+  );
   console.log(colors.bold(`Search between ${timeMin} and ${timeMax}`));
 
   return await calendar.getEventList(timeMin, timeMax);

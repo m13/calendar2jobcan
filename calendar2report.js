@@ -15,15 +15,18 @@ function asCompactedEvent(event) {
     title: String(event.summary).toLowerCase(),
     colorId: event.colorId,
     started: event.start.dateTime,
-    duration: (moment(event.end.dateTime) - moment(event.start.dateTime)) / 1000 / 60,
-    attended: (event.attendees) ? event.attendees.find(a => a.self).responseStatus === ACCEPTED : true,
-    outofoffice: event.description && event.description.startsWith(OUT_OF_OFFICE)
+    duration:
+      (moment(event.end.dateTime) - moment(event.start.dateTime)) / 1000 / 60,
+    attended: event.attendees
+      ? event.attendees.find((a) => a.self).responseStatus === ACCEPTED
+      : true,
+    outofoffice:
+      event.description && event.description.startsWith(OUT_OF_OFFICE),
   };
 }
 
-
 function groupByDate(iterator, current) {
-  if (!(iterator[current.week])) {
+  if (!iterator[current.week]) {
     iterator[current.week] = {
       week: current.week,
       month: current.month,
@@ -41,7 +44,7 @@ function groupByDate(iterator, current) {
       t_sync: 0,
       t_monaco: 0,
       t_bcn: 0,
-      t_changeset: 0
+      t_changeset: 0,
     };
   }
 
@@ -72,20 +75,19 @@ function groupByDate(iterator, current) {
   return iterator;
 }
 
-
 async function main() {
   let timeMin = moment('2020-01-01').toISOString();
   let timeMax = moment().toISOString();
 
   let events = await calendar.retrieveEvents(timeMin, timeMax);
 
-  events = events.map(asCompactedEvent)
-    .filter(event => event.attended) // only when I attended
-    .filter(event => event.started) // only if duration is not 24h
-    .filter(event => !event.outofoffice) // skip if I'm supposed to be out -- TODO others like gym, lunch, ..
-    .filter(event => event.title !== 'lunch')
+  events = events
+    .map(asCompactedEvent)
+    .filter((event) => event.attended) // only when I attended
+    .filter((event) => event.started) // only if duration is not 24h
+    .filter((event) => !event.outofoffice) // skip if I'm supposed to be out -- TODO others like gym, lunch, ..
+    .filter((event) => event.title !== 'lunch')
     .reduce(groupByDate, {});
-
 
   console.log(
     [
@@ -103,28 +105,30 @@ async function main() {
       't_sync',
       't_monaco',
       't_bcn',
-      't_changeset'
-    ].join("\t")
+      't_changeset',
+    ].join('\t')
   );
-  Object.values(events)
-    .forEach(v => console.log([
-    v.week,
-    v.month,
-    v.events,
-    v.duration,
-    v.c_meeting,
-    v.c_focus,
-    v.c_extra,
-    v.c_unknown,
-    v.t_oneonone,
-    v.t_incident,
-    v.t_interview,
-    v.t_sync,
-    v.t_monaco,
-    v.t_bcn,
-    v.t_changeset
-  ].join("\t")));
+  Object.values(events).forEach((v) =>
+    console.log(
+      [
+        v.week,
+        v.month,
+        v.events,
+        v.duration,
+        v.c_meeting,
+        v.c_focus,
+        v.c_extra,
+        v.c_unknown,
+        v.t_oneonone,
+        v.t_incident,
+        v.t_interview,
+        v.t_sync,
+        v.t_monaco,
+        v.t_bcn,
+        v.t_changeset,
+      ].join('\t')
+    )
+  );
 }
-
 
 main().catch(console.error);

@@ -1,9 +1,8 @@
 // Code adapted from https://developers.google.com/calendar/quickstart/nodejs
 
 const fs = require('fs').promises;
-const {askFor} = require('../lib/ask.js');
-const {google} = require('googleapis');
-
+const { askFor } = require('../lib/ask.js');
+const { google } = require('googleapis');
 
 class Google {
   constructor() {
@@ -17,9 +16,13 @@ class Google {
     const bCredentials = await fs.readFile(this.CREDENTIALS_PATH);
     const credentials = JSON.parse(bCredentials.toString('utf8'));
 
-    const {client_secret, client_id, redirect_uris} = credentials.installed;
+    const { client_secret, client_id, redirect_uris } = credentials.installed;
 
-    const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
+    const oAuth2Client = new google.auth.OAuth2(
+      client_id,
+      client_secret,
+      redirect_uris[0]
+    );
     let token;
 
     try {
@@ -28,7 +31,7 @@ class Google {
     } catch (error) {
       const authUrl = oAuth2Client.generateAuthUrl({
         access_type: this.OFFLINE,
-        scope: this.SCOPES
+        scope: this.SCOPES,
       });
 
       console.log('Authorize this app by visiting this url:', authUrl);
