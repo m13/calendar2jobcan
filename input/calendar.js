@@ -1,6 +1,6 @@
 const moment = require('moment-timezone');
 const calendar = new (require('../model/calendar.js'))();
-
+const colors = require('colors/safe');
 
 function input() {
   let unit = 'week';
@@ -18,8 +18,8 @@ function input() {
 module.exports = async function() {
   const { timeMin, timeMax } = input();
 
-  console.log(`With locale ${moment.locale()}, timezone ${moment().format('Z')}`);
-  console.log(`Search between ${timeMin} and ${timeMax}`);
+  console.log(colors.bold(`With locale ${moment.locale()}, timezone ${moment().format('Z')}`));
+  console.log(colors.bold(`Search between ${timeMin} and ${timeMax}`));
 
   return await calendar.getEventList(timeMin, timeMax);
 };

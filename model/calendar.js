@@ -21,6 +21,7 @@ class Calendar extends Google {
       showHiddenInvitations: true,
       orderBy: 'startTime'
     });
+
     return body.data.items;
   }
 
@@ -28,7 +29,7 @@ class Calendar extends Google {
     const events = await this.retrieveEvents(timeMin, timeMax);
     if (!events.length) return [];
 
-    const strategy = require(`./calendar/${process.env.JOBCAN_STRATEGY}.js`);
+    const strategy = require(`./strategy/${process.env.STRATEGY}.js`);
     return strategy(events);
   }
 }
