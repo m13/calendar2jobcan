@@ -49,7 +49,8 @@ Example:
 ```
 
 
-#### Jobcan
+
+#### Output: Jobcan
 
 Create a file named `.env` and add your credentials:
 ```yaml
@@ -61,6 +62,16 @@ JOBCAN_STRATEGY=sum
 CALENDAR_TIMEZONE=Asia/Tokyo # leave empty to default "Asia/Tokyo"
 ```
 
+#### Output: Jira
+
+Create a file named jira.json and add your API key, domain URL and email.
+Here's where you generate your Jira API key: https://id.atlassian.com/manage-profile/security/api-tokens
+```{
+    "email": "em@il.com",
+    "token": "123456789ACBDEFG",
+    "domainUrl": "https://id.atlassian.net"
+}
+```
 
 ## Calendar strategies
 
