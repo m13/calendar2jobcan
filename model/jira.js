@@ -12,6 +12,7 @@ class Jira {
   constructor() {
     this.CREDENTIAL_PATH = 'jira.json';
     this.EVENTS_PATH = 'events.json';
+    this.LINE_BREAK = '--------------------------------------------------------------------';
   }
 
   // best effort!
@@ -23,14 +24,15 @@ class Jira {
   }
 
   display(events) {
-    let totalDuration = 0;
-
+    let totalDurationMinutes = 0;
+    console.log(this.LINE_BREAK);
     for (let e of events) {
+      let eventDuration = moment.duration(e.duration, 'minutes');
       const line = [
-        moment(e.start).format('MM-DD (ddd)'),
-        `${moment.duration(e.duration, 'minutes').asHours()}h`,
-        e.summary || e.description,
-      ].join('\t');
+        colors.blue(moment(e.start).format('MM-DD')),
+        `${eventDuration.asHours().toFixed(2)}`,
+        colors.grey(e.description),
+      ].join("  ");
 
       if (this.isHoliday(moment(e.start))) {
         console.log(colors.grey(line));
@@ -38,12 +40,15 @@ class Jira {
         console.log(line);
       }
 
-      totalDuration += e.duration;
+      totalDurationMinutes += e.duration;
     }
 
-    totalDuration = moment(`2000-01-01 00:00`).add(totalDuration, 'minutes');
+    console.log(this.LINE_BREAK);
+    const totalDuration = moment.duration(totalDurationMinutes, 'minutes').asMinutes();
     console.log(
-      colors.bold(`Total duration: ${totalDuration.format('HH:mm')}`)
+      colors.bold(
+        `>Total: ${colors.yellow(`${Math.floor(totalDuration/60)}:${totalDuration % 60}`)} ⏱`
+      )
     );
   }
 
@@ -95,8 +100,6 @@ class Jira {
       return;
     }
     const jiraRequestUrl = `${credential.domainUrl}/rest/api/3/issue/${jiraEvent.id}/worklog/${jiraWorklogId}`;
-    console.log(jiraRequestUrl);
-
     const jiraRequestPayload = {
       method: "PUT",
       headers: {
@@ -164,11 +167,16 @@ class Jira {
       let savedEvent = savedEvents[calendarId];
 
       if (savedEvent) {
-        console.log(colors.green(`updateWorklog: ${jiraEvent.description}`));
-        jiraEvent = await this.updateWorklog(
-          savedEvent.jiraWorklogId,
-          jiraEvent
-        ); // returns jiraEvent with the new worklog ID
+        const shouldUpdate = (
+          jiraEvent.description != savedEvent.description || jiraEvent.duration != savedEvent.duration
+        );
+        if (shouldUpdate) {
+          console.log(colors.green(`updateWorklog: ${jiraEvent.description}`));
+          // returns jiraEvent with the new worklog ID
+          jiraEvent = await this.updateWorklog(savedEvent.jiraWorklogId, jiraEvent);
+        } else {
+          console.log(colors.grey(`noChanges: ${jiraEvent.description}`));
+        }
       } else {
         console.log(colors.blue(`addWorklog: ${jiraEvent.description}`));
         jiraEvent = await this.addWorklog(jiraEvent); // returns jiraEvent with the new worklog ID

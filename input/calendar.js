@@ -19,10 +19,14 @@ module.exports = async function () {
 
   console.log(
     colors.bold(
-      `With locale ${moment.locale()}, timezone ${moment().format('Z')}`
+      `🤖 Locale ${moment.locale()}, timezone ${moment().format('Z')}`
     )
   );
-  console.log(colors.bold(`Search between ${timeMin} and ${timeMax}`));
+  console.log(
+    colors.bold(
+      `Search between ${colors.blue(timeMin)} and ${colors.blue(timeMax)}`
+    )
+  );
 
   return await calendar.getEventList(timeMin, timeMax);
 };

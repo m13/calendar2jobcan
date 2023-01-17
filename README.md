@@ -52,10 +52,11 @@ Create a file named `.env` and add your credentials:
 
 ```yaml
 INPUT=calendar # or "csv"
+OUTPUT=jira # or jobcan
+STRATEGY=ticket # or sum or min-max
 HOLIDAY_ZONE=JP # https://github.com/commenthol/date-holidays/#supported-countries-states-regions
 JOBCAN_USERNAME=whatever@moneytree.jp
 JOBCAN_PASSWORD=BliBliBli
-JOBCAN_STRATEGY=sum
 CALENDAR_TIMEZONE=Asia/Tokyo # leave empty to default "Asia/Tokyo"
 ```
 
@@ -75,20 +76,33 @@ Here's where you generate your Jira API key: https://id.atlassian.com/manage-pro
 
 - `sum`: Time is the sum of all events individually (by @m13)
 - `min-max`: Time is calculated from earliest event to latest one (by @vadimburlakin)
+- `ticket`: Converts google calendar events to a ticket array to be persisted into JIRA (my @mt-fabio)
 
 # USAGE
 
-First argument is start date (inclusive) and second is end date (exclusive), but by default it retrieves your last week.
+1. You must set up your .env file correctly based on the desired OUTPUT.
+2. The first argument is a start date (inclusive) and second is end date (exclusive), retrieves your last week by default.
+3. You only need to do this once, but if you haven't logged into your google account via the app you will be prompted this
 
 ```bash
 $ npm i
 $ node . 2020-01-01 2020-01-16
-
 With locale en, timezone +09:00
-Search between 2019-12-31T15:00:00.000Z and 2020-01-15T15:00:00.000Z
+🤖 Search between 2019-12-31T15:00:00.000Z and 2020-01-15T15:00:00.000Z
 Authorize this app by visiting this url: https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar.readonly&response_type=code&client_id=248773543032-bacddogoa9k6qaakvfan2s5gv79k6hjk.apps.googleusercontent.com&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob
-Enter the code from that page here: 4/vQFHD6TUSaAB0VZ-C2YE77qqQicLHpLoAMxxxxxxxxxxxxxxx
+Enter the code from that page here: ...
+```
+
+4. Open the url and allow access.
+5. You should be redirected to localhost. Grab the code from the URL and paste it in your terminal
+6. If successful you should see:
+```
 Token stored to token.json
+```
+
+7. It then retrieves the information from your google calendar or csv (Note that CSV does not work with JIRA) and displays it:
+
+```
 Fri	2020-01-03	21:30	22:15	00:00	00:45
 Sun	2020-01-05	22:30	23:30	00:00	01:00
 Mon	2020-01-06	09:00	17:00	01:00	07:00
@@ -101,8 +115,7 @@ Mon	2020-01-13	14:00	15:00	00:00	01:00
 Tue	2020-01-14	09:45	19:35	01:00	08:50
 Wed	2020-01-15	08:00	20:30	01:00	11:30
 06:40 avg during 9 weekdays
-Do you want to persist the information into JobCan? (y/N) y
-Started with 2020-01-03 & id=1577977200^C
+Do you want to persist the information into JOBCAN? (y/N) y
 ```
 
 # PENDING
@@ -111,4 +124,5 @@ Started with 2020-01-03 & id=1577977200^C
 - [x] TimeZone
 - [x] Add multiple inputs (Google Calendar, CSV, ..)
 - [x] Manage Holidays (JP/AU/wherever)
+- [x] JIRA Integration
 - [ ] Tests
