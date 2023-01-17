@@ -60,7 +60,7 @@ JOBCAN_PASSWORD=BliBliBli
 CALENDAR_TIMEZONE=Asia/Tokyo # leave empty to default "Asia/Tokyo"
 ```
 
-#### Output: Jira
+#### Output: Jira (NEW!)
 
 Create a file named jira.json and add your API key, domain URL and email.
 Here's where you generate your Jira API key: https://id.atlassian.com/manage-profile/security/api-tokens
@@ -71,6 +71,8 @@ Here's where you generate your Jira API key: https://id.atlassian.com/manage-pro
     "domainUrl": "https://id.atlassian.net"
 }
 ```
+Your calendar events must have the JIRA ticket ID wrapped in either [] or {} in the event title or description for it to work.
+For example: ```[SPACE-1234]``` or ```{SPACE-1234}```
 
 ## Calendar strategies
 
