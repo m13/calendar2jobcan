@@ -55,7 +55,7 @@ INPUT=calendar # or "csv"
 OUTPUT=jira # or jobcan
 STRATEGY=ticket # or sum or min-max
 HOLIDAY_ZONE=JP # https://github.com/commenthol/date-holidays/#supported-countries-states-regions
-JOBCAN_USERNAME=whatever@email.com
+JOBCAN_USERNAME=em@il.com
 JOBCAN_PASSWORD=BliBliBli
 CALENDAR_TIMEZONE=Asia/Tokyo # leave empty to default "Asia/Tokyo"
 ```
@@ -63,7 +63,8 @@ CALENDAR_TIMEZONE=Asia/Tokyo # leave empty to default "Asia/Tokyo"
 #### Output: Jira (NEW!)
 
 Create a file named `jira.json` in the root folder and add your API key, domain URL and email like the format below:
-```{
+```
+{
     "email": "em@il.com",
     "token": "123456789ACBDEFG",
     "domainUrl": "https://id.atlassian.net"
