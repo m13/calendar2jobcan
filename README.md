@@ -7,6 +7,7 @@
 If you don't organize yourself using Google Calendar, now there is a new input method.
 
 First, generate a default `monthly.csv` with
+
 ```bash
 $ ./csv-generator.js # it will try to skip all JAPANESE holidays (Sat + Sun too)
 File ./monthly.csv written.
@@ -14,14 +15,13 @@ Review extra working or swapped days !!
 ```
 
 Then ensure to modify your `.env` file with
+
 ```yaml
 INPUT=csv
-...
 ```
 
-And run it like the usage section. 
+And run it like the usage section.
 CSV has only 1 argument, which is the filename (just in case you want to organize backups, etc.)
-
 
 #### Input: Google Calendar
 
@@ -31,6 +31,7 @@ Or you can click to the `Enable the Google Calendar API` on https://developers.g
 
 Whatever way, you will need to create (download) a file called `credentials.json` in this same folder.
 Example:
+
 ```json
 {
   "installed": {
@@ -40,18 +41,15 @@ Example:
     "token_uri": "https://oauth2.googleapis.com/token",
     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
     "client_secret": "CgPQ3epTpncXXXXXXX",
-    "redirect_uris": [
-      "urn:ietf:wg:oauth:2.0:oob",
-      "http://localhost"
-    ]
+    "redirect_uris": ["urn:ietf:wg:oauth:2.0:oob", "http://localhost"]
   }
 }
 ```
 
-
 #### Output: Jobcan
 
 Create a file named `.env` and add your credentials:
+
 ```yaml
 INPUT=calendar # or "csv"
 OUTPUT=jira # or jobcan
@@ -66,6 +64,7 @@ CALENDAR_TIMEZONE=Asia/Tokyo # leave empty to default "Asia/Tokyo"
 
 Create a file named jira.json and add your API key, domain URL and email.
 Here's where you generate your Jira API key: https://id.atlassian.com/manage-profile/security/api-tokens
+
 ```{
     "email": "em@il.com",
     "token": "123456789ACBDEFG",

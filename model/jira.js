@@ -1,7 +1,7 @@
-const fetch = require("node-fetch");
+const fetch = require('node-fetch');
 const moment = require('moment');
 const colors = require('colors/safe');
-const fs = require("fs").promises;
+const fs = require('fs').promises;
 const holidays = new (require('date-holidays'))();
 
 // Jira API Documentation
@@ -10,15 +10,17 @@ const holidays = new (require('date-holidays'))();
 // https://id.atlassian.com/manage-profile/security/api-tokens
 class Jira {
   constructor() {
-    this.CREDENTIAL_PATH = "jira.json";
+    this.CREDENTIAL_PATH = 'jira.json';
     this.EVENTS_PATH = 'events.json';
     this.LINE_BREAK = '--------------------------------------------------------------------';
   }
 
   // best effort!
   isHoliday(date) {
-    return (['Sat', 'Sun'].indexOf(date.format('ddd')) !== -1)
-      || holidays.isHoliday(date.toDate());
+    return (
+      ['Sat', 'Sun'].indexOf(date.format('ddd')) !== -1 ||
+      holidays.isHoliday(date.toDate())
+    );
   }
 
   display(events) {
@@ -27,7 +29,9 @@ class Jira {
     for (let e of events) {
       let eventDuration = moment.duration(e.duration, 'minutes');
       const line = [
-        colors.blue(moment(e.start).format('MM-DD')), `${eventDuration.asHours().toFixed(2)}`, colors.grey(e.description),
+        colors.blue(moment(e.start).format('MM-DD')),
+        `${eventDuration.asHours().toFixed(2)}`,
+        colors.grey(e.description),
       ].join("  ");
 
       if (this.isHoliday(moment(e.start))) {
@@ -38,9 +42,14 @@ class Jira {
 
       totalDurationMinutes += e.duration;
     }
+
     console.log(this.LINE_BREAK);
     const totalDuration = moment.duration(totalDurationMinutes, 'minutes').asMinutes();
-    console.log(colors.bold(`>Total: ${colors.yellow(`${Math.floor(totalDuration/60)}:${totalDuration % 60}`)} ⏱`));
+    console.log(
+      colors.bold(
+        `>Total: ${colors.yellow(`${Math.floor(totalDuration/60)}:${totalDuration % 60}`)} ⏱`
+      )
+    );
   }
 
   async getSavedEvents() {
@@ -49,7 +58,9 @@ class Jira {
       bPersistedEvents = await fs.readFile(this.EVENTS_PATH);
     } catch (error) {}
 
-    return bPersistedEvents ? await JSON.parse(bPersistedEvents.toString('utf8')) : {};
+    return bPersistedEvents
+      ? await JSON.parse(bPersistedEvents.toString('utf8'))
+      : {};
   }
 
   async saveEvents(events) {
@@ -83,7 +94,7 @@ class Jira {
     let credential;
     try {
       const bToken = await fs.readFile(this.CREDENTIAL_PATH);
-      credential = JSON.parse(bToken.toString("utf8"));
+      credential = JSON.parse(bToken.toString('utf8'));
     } catch (error) {
       console.log(error);
       return;
@@ -94,9 +105,9 @@ class Jira {
       headers: {
         Authorization: `Basic ${Buffer.from(
           `${credential.email}:${credential.token}`
-        ).toString("base64")}`,
-        Accept: "application/json",
-        "Content-Type": "application/json",
+        ).toString('base64')}`,
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
       body: this.getBody(jiraEvent),
     };
@@ -112,7 +123,7 @@ class Jira {
     let credential;
     try {
       const bToken = await fs.readFile(this.CREDENTIAL_PATH);
-      credential = JSON.parse(bToken.toString("utf8"));
+      credential = JSON.parse(bToken.toString('utf8'));
     } catch (error) {
       console.log(error);
       return;
@@ -120,13 +131,13 @@ class Jira {
 
     const jiraRequestUrl = `${credential.domainUrl}/rest/api/3/issue/${jiraEvent.id}/worklog`;
     const jiraRequestPayload = {
-      method: "POST",
+      method: 'POST',
       headers: {
         Authorization: `Basic ${Buffer.from(
           `${credential.email}:${credential.token}`
-        ).toString("base64")}`,
-        Accept: "application/json",
-        "Content-Type": "application/json",
+        ).toString('base64')}`,
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
       body: this.getBody(jiraEvent),
     };
@@ -146,7 +157,7 @@ class Jira {
         description: event.description,
         startAt: moment.utc(event.start).toISOString().replace('Z', '+0000'),
         timeSpentSeconds: event.duration * 60,
-      }
+      };
       return formattedEvent;
     });
 
@@ -156,10 +167,13 @@ class Jira {
       let savedEvent = savedEvents[calendarId];
 
       if (savedEvent) {
-        const shouldUpdate = (jiraEvent.description != savedEvent.description || jiraEvent.duration != savedEvent.duration)
+        const shouldUpdate = (
+          jiraEvent.description != savedEvent.description || jiraEvent.duration != savedEvent.duration
+        );
         if (shouldUpdate) {
           console.log(colors.green(`updateWorklog: ${jiraEvent.description}`));
-          jiraEvent = await this.updateWorklog(savedEvent.jiraWorklogId, jiraEvent); // returns jiraEvent with the new worklog ID
+          // returns jiraEvent with the new worklog ID
+          jiraEvent = await this.updateWorklog(savedEvent.jiraWorklogId, jiraEvent);
         } else {
           console.log(colors.grey(`noChanges: ${jiraEvent.description}`));
         }

@@ -2,9 +2,18 @@ const colors = require('colors/safe');
 const moment = require('moment-timezone');
 const holidays = new (require('date-holidays'))();
 const {
-  openBrowser, goto, write, click, button, closeBrowser,
-  $, textBox, text, clear,
-  into, setConfig
+  openBrowser,
+  goto,
+  write,
+  click,
+  button,
+  closeBrowser,
+  $,
+  textBox,
+  text,
+  clear,
+  into,
+  setConfig,
 } = require('taiko');
 
 /*
@@ -20,13 +29,15 @@ const {
  */
 class Jobcan {
   constructor() {
-    holidays.init(process.env.HOLIDAY_ZONE || 'JP')
+    holidays.init(process.env.HOLIDAY_ZONE || 'JP');
   }
 
   // best effort!
   isHoliday(date) {
-    return (['Sat', 'Sun'].indexOf(date.format('ddd')) !== -1)
-      || holidays.isHoliday(date.toDate());
+    return (
+      ['Sat', 'Sun'].indexOf(date.format('ddd')) !== -1 ||
+      holidays.isHoliday(date.toDate())
+    );
   }
 
   display(events) {
@@ -45,10 +56,11 @@ class Jobcan {
       const line = [
         moment(key).format('ddd'),
         key,
-        value.clockin, value.clockout, value.breaktime,
-        duration
-      ]
-        .join("\t");
+        value.clockin,
+        value.clockout,
+        value.breaktime,
+        duration,
+      ].join('\t');
 
       if (this.isHoliday(moment(key))) {
         console.log(colors.grey(line));
@@ -60,12 +72,14 @@ class Jobcan {
     }
 
     dduration = moment(`2000-01-01 00:00`).add(dduration / weekday, 'minutes');
-    console.log(colors.bold(`${dduration.format('HH:mm')} avg during ${weekday} weekdays`));
+    console.log(
+      colors.bold(`${dduration.format('HH:mm')} avg during ${weekday} weekdays`)
+    );
   }
 
   async persist(events) {
     try {
-      await openBrowser({headless: false});
+      await openBrowser({ headless: false });
 
       // login
       await goto('https://id.jobcan.jp/users/sign_in?app_key=atd&lang=ja');
@@ -74,21 +88,23 @@ class Jobcan {
       await click(button('ログイン'));
 
       // it doesn't work very well...
-      setConfig({observeTime: 1000, navigationTimeout: 1000});
+      setConfig({ observeTime: 1000, navigationTimeout: 1000 });
 
       for (const [key, value] of Object.entries(events)) {
         process.stdout.write(`Started with ${key}`);
 
-        await goto(`https://ssl.jobcan.jp/employee/adit/modify?year=${value.year}&month=${value.month}&day=${value.day}`);
+        await goto(
+          `https://ssl.jobcan.jp/employee/adit/modify?year=${value.year}&month=${value.month}&day=${value.day}`
+        );
 
-        if (await (text('Clock In').exists())) {
+        if (await text('Clock In').exists()) {
           console.error(` is already submitted!`);
-        } else if (!await (text('No clocking on shift day.').exists())) {
+        } else if (!(await text('No clocking on shift day.').exists())) {
           console.error(` is holiday!`);
         } else {
           // Clock-In
-          let ter_time = textBox({id: 'ter_time'});
-          let insert_button = button({id: 'insert_button'});
+          let ter_time = textBox({ id: 'ter_time' });
+          let insert_button = button({ id: 'insert_button' });
           await clear(ter_time);
           await write(value.clockin.replace(':', ''), into(ter_time));
           await click(insert_button);

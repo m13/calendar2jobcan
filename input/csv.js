@@ -10,8 +10,7 @@ function input() {
   return { filename };
 }
 
-
-module.exports = async function() {
+module.exports = async function () {
   const { filename } = input();
 
   console.log(`Reading from ${filename}`);
