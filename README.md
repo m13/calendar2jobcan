@@ -55,30 +55,36 @@ INPUT=calendar # or "csv"
 OUTPUT=jira # or jobcan
 STRATEGY=ticket # or sum or min-max
 HOLIDAY_ZONE=JP # https://github.com/commenthol/date-holidays/#supported-countries-states-regions
-JOBCAN_USERNAME=whatever@moneytree.jp
+JOBCAN_USERNAME=whatever@email.com
 JOBCAN_PASSWORD=BliBliBli
 CALENDAR_TIMEZONE=Asia/Tokyo # leave empty to default "Asia/Tokyo"
 ```
 
 #### Output: Jira (NEW!)
 
-Create a file named jira.json and add your API key, domain URL and email.
-Here's where you generate your Jira API key: https://id.atlassian.com/manage-profile/security/api-tokens
-
+Create a file named `jira.json` in the root folder and add your API key, domain URL and email like the format below:
 ```{
     "email": "em@il.com",
     "token": "123456789ACBDEFG",
     "domainUrl": "https://id.atlassian.net"
 }
 ```
-Your calendar events must have the JIRA ticket ID wrapped in either [] or {} in the event title or description for it to work.
-For example: ```[SPACE-1234]``` or ```{SPACE-1234}```
+Generate your Jira API key here: https://id.atlassian.com/manage-profile/security/api-tokens
+
+Your Google Calendar events must have the JIRA ticket ID wrapped in either [] or {} in the title or description.
+For example: `[SPACE-1234]` or `{SPACE-1234}`.
+
+It should only log to JIRA events that:
+- Have been accepted by you
+- Have a JIRA ID in either the description or title wrapped by [] or {}
+- Are not Out Of Office
+- Are not All-day
 
 ## Calendar strategies
 
 - `sum`: Time is the sum of all events individually (by @m13)
 - `min-max`: Time is calculated from earliest event to latest one (by @vadimburlakin)
-- `ticket`: Converts google calendar events to a ticket array to be persisted into JIRA (my @mt-fabio)
+- `ticket`: Converts google calendar events to a ticket array to be persisted into JIRA (my @mt-fabio) - Only works if OUTPUT=jira
 
 # USAGE
 
