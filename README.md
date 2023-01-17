@@ -72,6 +72,7 @@ Create a file named `jira.json` in the root folder and add your API key, domain 
 Generate your Jira API key here: https://id.atlassian.com/manage-profile/security/api-tokens
 
 Your Google Calendar events must have the JIRA ticket ID wrapped in either [] or {} in the title or description.
+
 For example: `[SPACE-1234]` or `{SPACE-1234}`.
 
 It should only log to JIRA events that:
@@ -80,7 +81,7 @@ It should only log to JIRA events that:
 - Are not Out Of Office
 - Are not All-day
 
-## Calendar strategies
+## Strategies
 
 - `sum`: Time is the sum of all events individually (by @m13)
 - `min-max`: Time is calculated from earliest event to latest one (by @vadimburlakin)
