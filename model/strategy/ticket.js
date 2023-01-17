@@ -1,9 +1,14 @@
 const moment = require('moment-timezone');
 
 function extractTicketID(value) {
+  console.log(`Trying to extract ticket value from:${value}`);
   const regex = /\[(.*?)\]/;
   const match = regex.exec(value);
-  return match ? match[1] : null;
+  ticketId = null
+  if (match) {
+    ticketId = match[1].trim().replace('<span>', '');
+  }
+  return ticketId;
 }
 
 function getDate(date) {
@@ -21,7 +26,7 @@ function getDate(date) {
   }
 
   throw new Error(
-    "Unexpected start date pattern: " + JSON.stringify(event.start)
+    "Unexpected start date pattern: " + JSON.stringify(date)
   );
 }
 

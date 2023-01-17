@@ -101,7 +101,8 @@ class Jira {
     };
 
     const response = await fetch(jiraRequestUrl, jiraRequestPayload);
-    console.log(JSON.stringify(response));
+    console.log('Response Object:', response);
+    console.log(`Stringified Response ${JSON.stringify(response)}`);
 
     jiraEvent.jiraWorklogId = jiraWorklogId;
     return jiraEvent;
