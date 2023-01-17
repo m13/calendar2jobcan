@@ -86,10 +86,11 @@ class Jira {
       console.log(error);
       return;
     }
-
     const jiraRequestUrl = `${credential.domainUrl}/rest/api/3/issue/${jiraEvent.id}/worklog/${jiraWorklogId}`;
+    console.log(jiraRequestUrl);
+
     const jiraRequestPayload = {
-      method: "POST",
+      method: "PUT",
       headers: {
         Authorization: `Basic ${Buffer.from(
           `${credential.email}:${credential.token}`
@@ -101,7 +102,7 @@ class Jira {
     };
 
     const response = await fetch(jiraRequestUrl, jiraRequestPayload);
-    console.log(JSON.stringify(response));
+    const responseJson = await response.json();
 
     jiraEvent.jiraWorklogId = jiraWorklogId;
     return jiraEvent;
