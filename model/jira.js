@@ -15,7 +15,6 @@ class Jira {
     this.LINE_BREAK = '--------------------------------------------------------------------';
   }
 
-  // best effort!
   isHoliday(date) {
     return (
       ['Sat', 'Sun'].indexOf(date.format('ddd')) !== -1 ||
@@ -23,26 +22,27 @@ class Jira {
     );
   }
 
-  display(events) {
-    let totalDurationMinutes = 0;
-    console.log(this.LINE_BREAK);
-    for (let e of events) {
-      let eventDuration = moment.duration(e.duration, 'minutes');
-      const line = [
-        colors.blue(moment(e.start).format('MM-DD')),
-        `${eventDuration.asHours().toFixed(2)}`,
-        colors.grey(e.description),
-      ].join("  ");
+  logEvent(event) {
+    const eventDuration = moment.duration(event.duration, 'minutes');
+    const line = [
+      colors.blue(moment(event.start).format('MM-DD')),
+      `${eventDuration.asHours().toFixed(2)}`,
+      colors.grey(event.description),
+    ].join("  ");
 
-      if (this.isHoliday(moment(e.start))) {
-        console.log(colors.grey(line));
-      } else {
-        console.log(line);
-      }
-
-      totalDurationMinutes += e.duration;
+    if (this.isHoliday(moment(event.start))) {
+      console.log(colors.grey(line));
+    } else {
+      console.log(line);
     }
+    return event;
+  }
 
+  display(events) {
+    console.log(this.LINE_BREAK);
+    const totalDurationMinutes = events
+    .map(this.logEvent)
+    .reduce((acc, e) => acc += e.duration, 0);
     console.log(this.LINE_BREAK);
     const totalDuration = moment.duration(totalDurationMinutes, 'minutes').asMinutes();
     console.log(
