@@ -30,6 +30,7 @@ class Jira {
       colors.grey(event.description),
     ].join("  ");
 
+    console.log(event.start);
     if (this.isHoliday(moment(event.start))) {
       console.log(colors.grey(line));
     } else {
