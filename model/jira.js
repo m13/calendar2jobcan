@@ -15,14 +15,14 @@ class Jira {
     this.LINE_BREAK = '--------------------------------------------------------------------';
   }
 
-  isHoliday(date) {
-    return (
-      ['Sat', 'Sun'].indexOf(date.format('ddd')) !== -1 ||
-      holidays.isHoliday(date.toDate())
-    );
-  }
-
   logEvent(event) {
+    const isHoliday = (date) => {
+      return (
+        ['Sat', 'Sun'].indexOf(date.format('ddd')) !== -1 ||
+        holidays.isHoliday(date.toDate())
+      );
+    }
+
     const eventDuration = moment.duration(event.duration, 'minutes');
     const line = [
       colors.blue(moment(event.start).format('MM-DD')),
@@ -30,8 +30,7 @@ class Jira {
       colors.grey(event.description),
     ].join("  ");
 
-    console.log(event.start);
-    if (this.isHoliday(moment(event.start))) {
+    if (isHoliday(moment(event.start))) {
       console.log(colors.grey(line));
     } else {
       console.log(line);
