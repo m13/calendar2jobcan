@@ -1,7 +1,7 @@
 const moment = require('moment-timezone');
 
 function extractTicketID(value) {
-  const regex = /[\[{](.*?)[\]}]/;
+  const regex = /[\[{](([a-zA-Z]+)-([0-9]+))[\]}]/;
   const match = regex.exec(value);
   ticketId = null
   if (match) {
