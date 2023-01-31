@@ -5,8 +5,9 @@ function extractTicketID(value) {
   const match = regex.exec(value);
   ticketId = null
   if (match) {
-    ticketId = match[1].trim().replace('<span>', '');
+    ticketId = match[1].trim();
   }
+  console.log(ticketId);
   return ticketId;
 }
 
@@ -31,6 +32,12 @@ function getDate(date) {
 
 module.exports = function (events) {
   // pre-process
+  // console.log(events.map((e) => {
+  //   return {
+  //     description: e.description
+  //   }
+  // }));
+
   let hash = events
     .map((event) => ({
       id: extractTicketID(event.summary) || extractTicketID(event.description),
@@ -39,10 +46,10 @@ module.exports = function (events) {
       description: event.summary,
       start: getDate(event.start),
       end: getDate(event.end),
-      attended: event.confirmed
-        ? event.attendees.find((attendee) => attendee.self).responseStatus ===
+      attended: event.attendees
+        ? event.status === 'confirmed' && event.attendees.find((attendee) => attendee.self).responseStatus ===
           'accepted'
-        : true,
+        : event.status === 'confirmed',
       duration:
         (moment(event.end.dateTime) - moment(event.start.dateTime)) / 1000 / 60,
     }))

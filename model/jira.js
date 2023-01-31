@@ -2,7 +2,7 @@ const fetch = require('node-fetch');
 const moment = require('moment');
 const colors = require('colors/safe');
 const fs = require('fs').promises;
-const holidays = new (require('date-holidays'))();
+const JapaneseHolidays = require('japanese-holidays');
 
 // Jira API Documentation
 // https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-worklogs/#api-rest-api-3-issue-issueidorkey-worklog-post
@@ -19,7 +19,7 @@ class Jira {
     const isHoliday = (date) => {
       return (
         ['Sat', 'Sun'].indexOf(date.format('ddd')) !== -1 ||
-        holidays.isHoliday(date.toDate())
+        JapaneseHolidays.isHoliday(date.toDate())
       );
     }
 
@@ -31,10 +31,11 @@ class Jira {
     ].join("  ");
 
     if (isHoliday(moment(event.start))) {
-      console.log(colors.grey(line));
+      console.log(colors.red(line));
     } else {
       console.log(line);
     }
+
     return event;
   }
 
