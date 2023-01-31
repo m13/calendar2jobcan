@@ -7,7 +7,6 @@ function extractTicketID(value) {
   if (match) {
     ticketId = match[1].trim();
   }
-  console.log(ticketId);
   return ticketId;
 }
 
