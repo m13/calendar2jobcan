@@ -52,11 +52,12 @@ Create a file named `.env` and add your credentials:
 
 ```yaml
 INPUT=calendar # or "csv"
-OUTPUT=jira # or jobcan
-STRATEGY=ticket # or sum or min-max
+OUTPUT=both # or jobcan or jira
 HOLIDAY_ZONE=JP # https://github.com/commenthol/date-holidays/#supported-countries-states-regions
+JOBCAN_STRATEGY=min-max
 JOBCAN_USERNAME=em@il.com
 JOBCAN_PASSWORD=BliBliBli
+JIRA_STRATEGY=ticket
 CALENDAR_TIMEZONE=Asia/Tokyo # leave empty to default "Asia/Tokyo"
 ```
 

@@ -89,21 +89,19 @@ module.exports = function (events) {
   let hash = events
     .map((event) => ({
       title: event.summary,
-      outofoffice:
-        event.description &&
-        event.description.startsWith('This is an out-of-office event'),
+      outOfOffice: event.eventType === 'outOfOffice',
       colorId: event.colorId,
       started: getEventStartDate(event),
       ended: getEventEndDate(event),
       days: getEventDays(event),
       attended: event.attendees
-        ? event.attendees.find((attendee) => attendee.self).responseStatus ===
+        ? event.status === 'confirmed' && event.attendees.find((attendee) => attendee.self).responseStatus ===
           'accepted'
-        : true,
+        : event.status === 'confirmed',
     }))
     .filter((event) => event.attended)
     .filter((event) => event.started) // only consider events that are not all-day events
-    .filter((event) => !event.outofoffice) // TODO: track out-of-office events
+    .filter((event) => !event.outOfOffice) // TODO: track out-of-office events
     .reduce((rv, current) => {
       for (let day of current.days) {
         if (!rv[day]) {

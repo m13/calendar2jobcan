@@ -28,7 +28,11 @@ class Calendar extends Google {
     const events = await this.retrieveEvents(timeMin, timeMax);
     if (!events.length) return [];
 
-    const strategy = require(`./strategy/${process.env.STRATEGY}.js`);
+    return events
+  }
+
+  async parseEventList(output, events) {
+    const strategy = require(`./strategy/${output}.js`);
     return strategy(events);
   }
 }

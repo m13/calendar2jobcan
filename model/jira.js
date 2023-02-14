@@ -12,7 +12,7 @@ class Jira {
   constructor() {
     this.CREDENTIAL_PATH = 'jira.json';
     this.EVENTS_PATH = 'events.json';
-    this.LINE_BREAK = '--------------------------------------------------------------------';
+    this.LINE_BREAK = '----------------------------------------------------------------------------------------------------';
   }
 
   logEvent(event) {
@@ -40,6 +40,9 @@ class Jira {
   }
 
   display(events) {
+    console.log(
+      colors.bold(`\nJIRA Output`)
+    );
     console.log(this.LINE_BREAK);
     const totalDurationMinutes = events
     .map(this.logEvent)
