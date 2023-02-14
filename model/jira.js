@@ -166,10 +166,9 @@ class Jira {
     for (let jiraEvent of jiraEvents) {
       const calendarId = jiraEvent.calendarId;
       let savedEvent = savedEvents[calendarId];
-
       if (savedEvent) {
         const shouldUpdate = (
-          jiraEvent.description != savedEvent.description || jiraEvent.duration != savedEvent.duration
+          jiraEvent.description != savedEvent.description || jiraEvent.timeSpentSeconds != savedEvent.timeSpentSeconds
         );
         if (shouldUpdate) {
           console.log(colors.green(`updateWorklog: ${jiraEvent.description}`));
