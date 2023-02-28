@@ -133,7 +133,5 @@ module.exports = function (events) {
     }
   }
 
-  console.log(hash);
-
   return hash;
 };
