@@ -93,7 +93,7 @@ class Jobcan {
       await click(button('ログイン'));
 
       // it doesn't work very well...
-      setConfig({ observeTime: 1000, navigationTimeout: 1000 });
+      setConfig({ observeTime: 200, navigationTimeout: 1000 });
 
       for (const [key, value] of Object.entries(events)) {
         process.stdout.write(`Started with ${key}`);
