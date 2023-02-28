@@ -30,6 +30,7 @@ const {
 class Jobcan {
   constructor() {
     holidays.init(process.env.HOLIDAY_ZONE || 'JP');
+    this.LINE_BREAK = '----------------------------------------------------------------------------------------------------';
   }
 
   // best effort!
@@ -43,7 +44,10 @@ class Jobcan {
   display(events) {
     let dduration = 0;
     let weekday = 0;
-
+    console.log(
+      colors.bold(`\nJOBCAN Output`)
+    );
+    console.log(this.LINE_BREAK);
     for (const [key, value] of Object.entries(events)) {
       let duration = moment(`2000-01-01 00:00`).minutes(value.duration);
       if (duration.hours() > 9) {
@@ -72,8 +76,9 @@ class Jobcan {
     }
 
     dduration = moment(`2000-01-01 00:00`).add(dduration / weekday, 'minutes');
+    console.log(this.LINE_BREAK);
     console.log(
-      colors.bold(`${dduration.format('HH:mm')} avg during ${weekday} weekdays`)
+      colors.bold(`>Average: ${dduration.format('HH:mm')} ⏱  during ${weekday} weekdays`)
     );
   }
 
@@ -88,7 +93,7 @@ class Jobcan {
       await click(button('ログイン'));
 
       // it doesn't work very well...
-      setConfig({ observeTime: 1000, navigationTimeout: 1000 });
+      setConfig({ observeTime: 200, navigationTimeout: 1000 });
 
       for (const [key, value] of Object.entries(events)) {
         process.stdout.write(`Started with ${key}`);

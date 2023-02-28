@@ -62,26 +62,38 @@ function getEventDays(event) {
   return days;
 }
 
-function getWorkingHoursForDay(day) {
-  const earliestEventOfTheDay = day.sort((a, b) => a.started - b.started)[0];
-  const lastEventOfTheDay = day.sort((a, b) => b.ended - a.ended)[0];
+function getBreakHoursForDay(day, startOfDay, endOfDay) {
+  let breakTime = 0;
+  day.forEach(event => {
+    if (event.outOfOffice && event.start > startOfDay && event.end < endOfDay) {
+      breakTime += (event.end - event.start) / 1000 / 60
+    }
+  });
 
-  return {
-    earliestEvent: earliestEventOfTheDay,
-    lastEvent: lastEventOfTheDay,
-    clockin: earliestEventOfTheDay.started.format(HHmm),
-    clockout: lastEventOfTheDay.ended.format(HHmm),
-    year: earliestEventOfTheDay.started.format('YYYY'),
-    month: earliestEventOfTheDay.started.format('MM'),
-    day: earliestEventOfTheDay.started.format('DD'),
-    duration:
-      (lastEventOfTheDay.ended - earliestEventOfTheDay.started) / 1000 / 60,
-    breaktime:
-      lastEventOfTheDay.ended - earliestEventOfTheDay.started >
-      4 * 60 * 60 * 1000
-        ? '01:00'
-        : '00:00',
-  };
+  return breakTime;
+}
+
+function getWorkingHoursForDay(day) {
+  const dayWithoutOutOfOfficeEvents = day.filter((event) => !event.outOfOffice);
+  if (dayWithoutOutOfOfficeEvents.length > 1) {
+    const earliestEventOfTheDay = dayWithoutOutOfOfficeEvents.sort((a, b) => a.start - b.start)[0];
+    const lastEventOfTheDay = dayWithoutOutOfOfficeEvents.sort((a, b) => b.end - a.end)[0];
+    const breaktime = getBreakHoursForDay(day, earliestEventOfTheDay.start, lastEventOfTheDay.end);
+
+    return {
+      earliestEvent: earliestEventOfTheDay,
+      lastEvent: lastEventOfTheDay,
+      clockin: earliestEventOfTheDay.start.format(HHmm),
+      clockout: lastEventOfTheDay.end.format(HHmm),
+      year: earliestEventOfTheDay.start.format('YYYY'),
+      month: earliestEventOfTheDay.start.format('MM'),
+      day: earliestEventOfTheDay.start.format('DD'),
+      duration: ((lastEventOfTheDay.end - earliestEventOfTheDay.start) / 1000 / 60) - breaktime,
+      breaktime:  moment(`2000-01-01 00:00`).minutes(breaktime).format('HH:mm')
+    };
+  }
+
+  return null;
 }
 
 module.exports = function (events) {
@@ -91,8 +103,8 @@ module.exports = function (events) {
       title: event.summary,
       outOfOffice: event.eventType === 'outOfOffice',
       colorId: event.colorId,
-      started: getEventStartDate(event),
-      ended: getEventEndDate(event),
+      start: getEventStartDate(event),
+      end: getEventEndDate(event),
       days: getEventDays(event),
       attended: event.attendees
         ? event.status === 'confirmed' && event.attendees.find((attendee) => attendee.self).responseStatus ===
@@ -100,8 +112,7 @@ module.exports = function (events) {
         : event.status === 'confirmed',
     }))
     .filter((event) => event.attended)
-    .filter((event) => event.started) // only consider events that are not all-day events
-    .filter((event) => !event.outOfOffice) // TODO: track out-of-office events
+    .filter((event) => event.start) // only consider events that are not all-day events
     .reduce((rv, current) => {
       for (let day of current.days) {
         if (!rv[day]) {
@@ -114,8 +125,15 @@ module.exports = function (events) {
 
   // post-process
   for (const [key, value] of Object.entries(hash)) {
-    hash[key] = getWorkingHoursForDay(value);
+    const workingHours = getWorkingHoursForDay(value);
+    if (workingHours)
+      hash[key] = workingHours;
+    else {
+      delete hash[key];
+    }
   }
+
+  console.log(hash);
 
   return hash;
 };
