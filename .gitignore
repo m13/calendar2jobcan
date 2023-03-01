@@ -1,11 +1,15 @@
 # WebStorm
 .idea/
 
+# env
+.env
+
 # libraries
 node_modules/
 
 # private files
 credentials.json
 token.json
-.env
+events.json
+jira.json
 *monthly.csv
