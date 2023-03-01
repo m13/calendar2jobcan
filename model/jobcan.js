@@ -102,9 +102,9 @@ class Jobcan {
           `https://ssl.jobcan.jp/employee/adit/modify?year=${value.year}&month=${value.month}&day=${value.day}`
         );
 
-        if (await text('Clock In').exists() || await text('出勤').exists()) {
+        if (await text('Clock In').exists() || await text('承認済み').exists()) {
           console.error(` is already submitted!`);
-        } else if (!(await text('No clocking on shift day.').exists())) {
+        } else if (!(await text('No clocking on shift day.').exists() || await text('シフトがあるのに打刻されていません。').exists())) {
           console.error(` is holiday!`);
         } else {
           // Clock-In
