@@ -43,9 +43,12 @@ class Jobcan {
 
   display(events) {
     let dduration = 0;
+    let overtime = 0;
     let weekday = 0;
+    const FULL_DAY = 480;
+
     console.log(
-      colors.bold(`\nJOBCAN Output`)
+      colors.bold(`\nJOBCAN`)
     );
     console.log(this.LINE_BREAK);
     for (const [key, value] of Object.entries(events)) {
@@ -57,14 +60,16 @@ class Jobcan {
       } else {
         duration = colors.green(duration.format('HH:mm'));
       }
+
       const line = [
-        moment(key).format('ddd'),
-        key,
-        value.clockin,
-        value.clockout,
-        value.breaktime,
+        colors.blue(moment(key).format('ddd')),
+        moment(key).format('MM-DD'),
+        colors.grey(value.clockin),
+        colors.grey(value.clockout),
+        colors.grey(value.breaktime),
         duration,
-      ].join('\t');
+        colors.yellow(value.vacation)
+      ].join('  ');
 
       if (this.isHoliday(moment(key))) {
         console.log(colors.grey(line));
@@ -73,12 +78,20 @@ class Jobcan {
         weekday += 1;
       }
       dduration += value.duration;
+      overtime += value.duration - FULL_DAY;
     }
 
     dduration = moment(`2000-01-01 00:00`).add(dduration / weekday, 'minutes');
+
+    let isOvertime = false;
+    if (overtime > 0) {
+      isOvertime = true;
+    }
+    const overtimeText = (isOvertime ? '+' : '-') + (moment(`2000-01-01 00:00`).add(Math.abs(overtime), 'minutes')).format('HH:mm');
+
     console.log(this.LINE_BREAK);
     console.log(
-      colors.bold(`>Average: ${dduration.format('HH:mm')} ⏱  during ${weekday} weekdays`)
+      colors.bold(`>Average: ${dduration.format('HH:mm')} ⏱  during ${weekday} weekdays. ${isOvertime ? colors.green(overtimeText) : colors.red(overtimeText)}`)
     );
   }
 

@@ -41,7 +41,7 @@ class Jira {
 
   display(events) {
     console.log(
-      colors.bold(`\nJIRA Output`)
+      colors.bold(`\nJIRA`)
     );
     console.log(this.LINE_BREAK);
     const totalDurationMinutes = events
