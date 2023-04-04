@@ -92,7 +92,7 @@ class Jobcan {
   }
 
   async persist(events) {
-    const browser = await puppeteer.launch({headless: false}); // default is true
+    const browser = await puppeteer.launch(); // {headless: false} default is true
     const page = await browser.newPage();
 
     try {
@@ -127,7 +127,7 @@ class Jobcan {
     } catch (error) {
       console.error(error);
     } finally {
-      // await browser.close();
+      await browser.close();
     }
   }
 }
