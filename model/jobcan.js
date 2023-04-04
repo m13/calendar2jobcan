@@ -92,7 +92,7 @@ class Jobcan {
   }
 
   async persist(events) {
-    const browser = await puppeteer.launch(); // {headless: false} default is true
+    const browser = await puppeteer.launch({headless: false}); // default is true
     const page = await browser.newPage();
 
     try {
@@ -110,7 +110,9 @@ class Jobcan {
 
         if (!await this.exists(page, '//tr[@class="text-center"]//td[contains(., "Clock-in") or contains(., "Clock In")]')) {
           if (!await this.exists(page, '//form[@id="modifyForm"]//div[contains(., "Cannot revise clock time on this day")]')) {
-            // Clock-In
+          console.log(colors.blue(`clocking in/out: ${key} ${value.clockin} - ${value.clockout}: clocked-in/out`));
+
+          // Clock-In
             await this.clear(page, '#ter_time');
             await page.type('#ter_time', value.clockin.replace(':', ''));
             await page.click('#insert_button');
@@ -119,7 +121,6 @@ class Jobcan {
             await this.clear(page, '#ter_time');
             await page.type('#ter_time', value.clockout.replace(':', ''));
             await page.click('#insert_button');
-            console.log(colors.blue(`clocking in/out: ${key} ${value.clockin} - ${value.clockout}: clocked-in/out`));
           }
         }
       }
