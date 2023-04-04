@@ -1,20 +1,7 @@
 const colors = require('colors/safe');
 const moment = require('moment-timezone');
 const holidays = new (require('date-holidays'))();
-const {
-  openBrowser,
-  goto,
-  write,
-  click,
-  button,
-  closeBrowser,
-  $,
-  textBox,
-  text,
-  clear,
-  into,
-  setConfig,
-} = require('taiko');
+const puppeteer = require('puppeteer');
 
 /*
  events = {
@@ -95,50 +82,52 @@ class Jobcan {
     );
   }
 
+  async clear(page, selector) {
+    await page.$eval(selector, el => el.value = '');
+  }
+
+  async exists(page, xpath) {
+    const elements = await page.$x(xpath);
+    return elements.length > 0;
+  }
+
   async persist(events) {
+    const browser = await puppeteer.launch({headless: false}); // default is true
+    const page = await browser.newPage();
+
     try {
-      await openBrowser({ headless: false });
+      await page.goto('https://id.jobcan.jp/users/sign_in?app_key=atd&lang=ja');
+      // Set screen size
+      await page.setViewport({width: 1080, height: 1024});
 
-      // login
-      await goto('https://id.jobcan.jp/users/sign_in?app_key=atd&lang=ja');
-      await write(process.env.JOBCAN_USERNAME, $('#user_email'));
-      await write(process.env.JOBCAN_PASSWORD, $('#user_password'));
-      await click(button('ログイン'));
+      await page.type('#user_email', process.env.JOBCAN_USERNAME);
+      await page.type('#user_password', process.env.JOBCAN_PASSWORD);
 
-      // it doesn't work very well...
-      setConfig({ observeTime: 200, navigationTimeout: 1000 });
+      await page.click('#login_button');
 
       for (const [key, value] of Object.entries(events)) {
-        process.stdout.write(`Started with ${key}`);
+        await page.goto(`https://ssl.jobcan.jp/employee/adit/modify?year=${value.year}&month=${value.month}&day=${value.day}`);
 
-        await goto(
-          `https://ssl.jobcan.jp/employee/adit/modify?year=${value.year}&month=${value.month}&day=${value.day}`
-        );
+        if (!await this.exists(page, '//tr[@class="text-center"]//td[contains(., "Clock-in") or contains(., "Clock In")]')) {
+          if (!await this.exists(page, '//form[@id="modifyForm"]//div[contains(., "Cannot revise clock time on this day")]')) {
+            // Clock-In
+            await this.clear(page, '#ter_time');
+            await page.type('#ter_time', value.clockin.replace(':', ''));
+            await page.click('#insert_button');
 
-        if (await text('Clock In').exists() || await text('承認済み').exists()) {
-          console.error(` is already submitted!`);
-        } else if (!(await text('No clocking on shift day.').exists() || await text('シフトがあるのに打刻されていません。').exists())) {
-          console.error(` is holiday!`);
-        } else {
-          // Clock-In
-          let ter_time = textBox({ id: 'ter_time' });
-          let insert_button = button({ id: 'insert_button' });
-          await clear(ter_time);
-          await write(value.clockin.replace(':', ''), into(ter_time));
-          await click(insert_button);
-          process.stdout.write(` & in`);
-          // Clock-Out
-          await clear(ter_time);
-          await write(value.clockout.replace(':', ''), into(ter_time));
-          await click(insert_button);
-          process.stdout.write(` & out`);
-          console.log(` & requested!`);
+            // Clock-Out
+            await this.clear(page, '#ter_time');
+            await page.type('#ter_time', value.clockout.replace(':', ''));
+            await page.click('#insert_button');
+            console.log(colors.blue(`clocking in/out: ${key} ${value.clockin} - ${value.clockout}: clocked-in/out`));
+          }
         }
       }
+
     } catch (error) {
       console.error(error);
     } finally {
-      await closeBrowser();
+      // await browser.close();
     }
   }
 }

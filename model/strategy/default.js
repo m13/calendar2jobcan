@@ -104,7 +104,7 @@ function getWorkingHoursForDay(day) {
 
     let vacationTime = 0;
     if (vacationEvent) {
-      // TODO: Decide if we go with 4 hours by default if it's a half vacation, or calculate from event duration
+      // TODO: Decide if we go with 4 hours by default if it's a half vacation, or calculate from event duration (4 * 60)
       vacationTime = ((vacationEvent.end - vacationEvent.start) / 1000 / 60)
     }
 
