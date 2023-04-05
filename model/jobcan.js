@@ -102,7 +102,6 @@ class Jobcan {
 
       await page.type('#user_email', process.env.JOBCAN_USERNAME);
       await page.type('#user_password', process.env.JOBCAN_PASSWORD);
-
       await page.click('#login_button');
 
       for (const [key, value] of Object.entries(events)) {
@@ -110,17 +109,17 @@ class Jobcan {
 
         if (!await this.exists(page, '//tr[@class="text-center"]//td[contains(., "Clock-in") or contains(., "Clock In")]')) {
           if (!await this.exists(page, '//form[@id="modifyForm"]//div[contains(., "Cannot revise clock time on this day")]')) {
-          console.log(colors.blue(`clocking in/out: ${key} ${value.clockin} - ${value.clockout}: clocked-in/out`));
+            console.log(colors.blue(`${key} ${value.clockin} ~ ${value.clockout}`));
 
-          // Clock-In
+            // Clock-In
             await this.clear(page, '#ter_time');
             await page.type('#ter_time', value.clockin.replace(':', ''));
-            await page.click('#insert_button');
+            await page.evaluate(()=>document.querySelector('#insert_button').click());
 
             // Clock-Out
             await this.clear(page, '#ter_time');
             await page.type('#ter_time', value.clockout.replace(':', ''));
-            await page.click('#insert_button');
+            await page.evaluate(()=>document.querySelector('#insert_button').click());
           }
         }
       }
