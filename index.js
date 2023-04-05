@@ -44,7 +44,6 @@ async function main() {
   const question = `Do you want to persist the information into ${output === 'BOTH' ? 'JIRA and JOBCAN' : output}? (y/N) `;
   const accepted = ['y', 'Y', 'yes'];
   const shouldPersist = await askIfContinue(question, accepted);
-
   if (!shouldPersist) return;
 
   switch (output) {
@@ -58,7 +57,7 @@ async function main() {
       await jira.persist(jiraEvents);
       await jobcan.persist(jobcanEvents);
     default:
-      console.log('Invalid');
+      console.log('\n');
   }
 }
 

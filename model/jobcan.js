@@ -1,20 +1,7 @@
 const colors = require('colors/safe');
 const moment = require('moment-timezone');
 const holidays = new (require('date-holidays'))();
-const {
-  openBrowser,
-  goto,
-  write,
-  click,
-  button,
-  closeBrowser,
-  $,
-  textBox,
-  text,
-  clear,
-  into,
-  setConfig,
-} = require('taiko');
+const puppeteer = require('puppeteer');
 
 /*
  events = {
@@ -43,9 +30,12 @@ class Jobcan {
 
   display(events) {
     let dduration = 0;
+    let overtime = 0;
     let weekday = 0;
+    const FULL_DAY = 480;
+
     console.log(
-      colors.bold(`\nJOBCAN Output`)
+      colors.bold(`\nJOBCAN`)
     );
     console.log(this.LINE_BREAK);
     for (const [key, value] of Object.entries(events)) {
@@ -57,14 +47,16 @@ class Jobcan {
       } else {
         duration = colors.green(duration.format('HH:mm'));
       }
+
       const line = [
-        moment(key).format('ddd'),
-        key,
-        value.clockin,
-        value.clockout,
-        value.breaktime,
+        colors.blue(moment(key).format('ddd')),
+        moment(key).format('MM-DD'),
+        colors.grey(value.clockin),
+        colors.grey(value.clockout),
+        colors.grey(value.breaktime),
         duration,
-      ].join('\t');
+        colors.yellow(value.vacation)
+      ].join('  ');
 
       if (this.isHoliday(moment(key))) {
         console.log(colors.grey(line));
@@ -73,59 +65,69 @@ class Jobcan {
         weekday += 1;
       }
       dduration += value.duration;
+      overtime += value.duration - FULL_DAY;
     }
 
     dduration = moment(`2000-01-01 00:00`).add(dduration / weekday, 'minutes');
+
+    let isOvertime = false;
+    if (overtime > 0) {
+      isOvertime = true;
+    }
+    const overtimeText = (isOvertime ? '+' : '-') + (moment(`2000-01-01 00:00`).add(Math.abs(overtime), 'minutes')).format('HH:mm');
+
     console.log(this.LINE_BREAK);
     console.log(
-      colors.bold(`>Average: ${dduration.format('HH:mm')} ⏱  during ${weekday} weekdays`)
+      colors.bold(`>Average: ${dduration.format('HH:mm')} ⏱  during ${weekday} weekdays. ${isOvertime ? colors.green(overtimeText) : colors.red(overtimeText)}`)
     );
   }
 
+  async clear(page, selector) {
+    await page.$eval(selector, el => el.value = '');
+  }
+
+  async exists(page, xpath) {
+    const elements = await page.$x(xpath);
+    return elements.length > 0;
+  }
+
   async persist(events) {
+    const browser = await puppeteer.launch({headless: false}); // default is true
+    const page = await browser.newPage();
+
     try {
-      await openBrowser({ headless: false });
+      await page.goto('https://id.jobcan.jp/users/sign_in?app_key=atd&lang=ja');
+      // Set screen size
+      await page.setViewport({width: 1080, height: 1024});
 
-      // login
-      await goto('https://id.jobcan.jp/users/sign_in?app_key=atd&lang=ja');
-      await write(process.env.JOBCAN_USERNAME, $('#user_email'));
-      await write(process.env.JOBCAN_PASSWORD, $('#user_password'));
-      await click(button('ログイン'));
-
-      // it doesn't work very well...
-      setConfig({ observeTime: 200, navigationTimeout: 1000 });
+      await page.type('#user_email', process.env.JOBCAN_USERNAME);
+      await page.type('#user_password', process.env.JOBCAN_PASSWORD);
+      await page.click('#login_button');
 
       for (const [key, value] of Object.entries(events)) {
-        process.stdout.write(`Started with ${key}`);
+        await page.goto(`https://ssl.jobcan.jp/employee/adit/modify?year=${value.year}&month=${value.month}&day=${value.day}`);
 
-        await goto(
-          `https://ssl.jobcan.jp/employee/adit/modify?year=${value.year}&month=${value.month}&day=${value.day}`
-        );
+        if (!await this.exists(page, '//tr[@class="text-center"]//td[contains(., "Clock-in") or contains(., "Clock In")]')) {
+          if (!await this.exists(page, '//form[@id="modifyForm"]//div[contains(., "Cannot revise clock time on this day")]')) {
+            console.log(colors.blue(`${key} ${value.clockin} ~ ${value.clockout}`));
 
-        if (await text('Clock In').exists() || await text('承認済み').exists()) {
-          console.error(` is already submitted!`);
-        } else if (!(await text('No clocking on shift day.').exists() || await text('シフトがあるのに打刻されていません。').exists())) {
-          console.error(` is holiday!`);
-        } else {
-          // Clock-In
-          let ter_time = textBox({ id: 'ter_time' });
-          let insert_button = button({ id: 'insert_button' });
-          await clear(ter_time);
-          await write(value.clockin.replace(':', ''), into(ter_time));
-          await click(insert_button);
-          process.stdout.write(` & in`);
-          // Clock-Out
-          await clear(ter_time);
-          await write(value.clockout.replace(':', ''), into(ter_time));
-          await click(insert_button);
-          process.stdout.write(` & out`);
-          console.log(` & requested!`);
+            // Clock-In
+            await this.clear(page, '#ter_time');
+            await page.type('#ter_time', value.clockin.replace(':', ''));
+            await page.evaluate(()=>document.querySelector('#insert_button').click());
+
+            // Clock-Out
+            await this.clear(page, '#ter_time');
+            await page.type('#ter_time', value.clockout.replace(':', ''));
+            await page.evaluate(()=>document.querySelector('#insert_button').click());
+          }
         }
       }
+
     } catch (error) {
       console.error(error);
     } finally {
-      await closeBrowser();
+      await browser.close();
     }
   }
 }

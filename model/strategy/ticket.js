@@ -16,7 +16,7 @@ function getDate(date) {
   }
 
   if (date.dateTime) {
-    return moment.utc(date.dateTime); // TODO add proper parsing
+    return moment(date.dateTime); // TODO add proper parsing
   }
 
   if (date) {
