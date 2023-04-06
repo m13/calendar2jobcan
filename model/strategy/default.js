@@ -4,9 +4,13 @@ const moment = require('moment-timezone');
 const YYYYMMDD = 'YYYY-MM-DD';
 const HHmm = 'HH:mm';
 
-const vacationTypes = {
-  sickCareLeave: 'SL',
-  paidTimeOff: 'PTO'
+const holiday_map = {
+  'PTO': 'Annual leave 年次有給休暇 (Full day)',
+  'PTO-AM': 'Annual leave 年次有給休暇 (AM OFF 午前休)',
+  'PTO-PM': 'Annual leave 年次有給休暇 (PM OFF 午後休)',
+  'SL': 'Sick/Care Leave 傷病/介護 (Full day)',
+  'SL-AM': 'Sick/Care Leave 傷病/介護 (AM OFF)',
+  'SL-PM': 'Sick/Care Leave 傷病/介護 (PM OFF)',
 }
 
 function extractVacationType(value) {
@@ -15,7 +19,7 @@ function extractVacationType(value) {
   let vacation = null
   if (match) {
     let v = match[1].trim();
-    if (v === vacationTypes.sickCareLeave || v === vacationTypes.paidTimeOff)
+    if (holiday_map[v])
       vacation = v;
   }
   return vacation;
@@ -97,7 +101,8 @@ function getWorkingHoursForDay(day) {
   const dayWithoutOutOfOfficeEvents = day.filter((event) => !event.outOfOffice);
   const vacationEvent = day.filter((event) => event.vacation)[0];
 
-  if (dayWithoutOutOfOfficeEvents.length > 1) {
+  const fullDayOutOfOffice = day.filter((event) => (event.end - event.start) / 1000 / 60 / 60 === 24)[0];
+  if (!fullDayOutOfOffice && dayWithoutOutOfOfficeEvents.length > 1) {
     const earliestEventOfTheDay = dayWithoutOutOfOfficeEvents.sort((a, b) => a.start - b.start)[0];
     const lastEventOfTheDay = dayWithoutOutOfOfficeEvents.sort((a, b) => b.end - a.end)[0];
     const breaktime = getBreakHoursForDay(earliestEventOfTheDay.start, lastEventOfTheDay.end);
